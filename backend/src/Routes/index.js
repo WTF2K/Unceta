@@ -1,0 +1,54 @@
+const express = require("express");
+const createCrudRouter = require("./crud.routes");
+const uploadRouter = require('./upload.routes');
+const { getCatalogTranslations, translateAllCatalog } = require('../Controllers/catalog-translation.controller');
+const { translateAllContent, translateContent } = require('../Controllers/content-translation.controller');
+const { login, logout, session, changePassword } = require('../Controllers/auth.controller');
+const { requireAdmin } = require('../Middleware/auth.middleware');
+const { getReviewData, saveCertificationTranslation, saveNewsTranslation } = require('../Controllers/translation-review.controller');
+const { getSectorProducts, reassignAndDelete } = require('../Controllers/sector-reassignment.controller');
+const { getPublicDynamicTranslations, translateDynamicContent } = require('../Controllers/dynamic-translation.controller');
+
+const adminsController = require("../Controllers/admins.controller");
+const conteudosController = require("../Controllers/conteudos.controller");
+const linguasController = require("../Controllers/linguas.controller");
+const messagesController = require("../Controllers/messages.controller");
+const noticiasController = require("../Controllers/noticias.controller");
+const produtosController = require("../Controllers/produtos.controller");
+const setoresController = require("../Controllers/setores.controller");
+const traducoesController = require("../Controllers/traducoes.controller");
+const vistasProdutoController = require("../Controllers/vistas_produto.controller");
+
+const router = express.Router();
+const protectedWrites = { createMiddleware: [requireAdmin], mutationMiddleware: [requireAdmin] };
+const protectedRecords = { findAllMiddleware: [requireAdmin], mutationMiddleware: [requireAdmin] };
+
+router.post('/auth/login', login);
+router.post('/auth/logout', logout);
+router.get('/auth/session', requireAdmin, session);
+router.put('/auth/password', requireAdmin, changePassword);
+router.get('/dynamic-translations', getPublicDynamicTranslations);
+router.post('/dynamic-translations/translate-all', requireAdmin, translateDynamicContent);
+router.get('/translation-review', requireAdmin, getReviewData);
+router.put('/translation-review/news/:id_noticia/:id_lingua', requireAdmin, saveNewsTranslation);
+router.put('/translation-review/certifications/:indice/:id_lingua', requireAdmin, saveCertificationTranslation);
+router.get('/setores/:id_setor/products', requireAdmin, getSectorProducts);
+router.put('/setores/:id_setor/reassign', requireAdmin, reassignAndDelete);
+router.get('/dashboard', requireAdmin, vistasProdutoController.getDashboardStats);
+router.post('/produtos/:id_prod/view', vistasProdutoController.recordProductView);
+router.put('/noticias/:id_noticia/publish', requireAdmin, noticiasController.updatePublishState);
+router.get('/catalog-translations', getCatalogTranslations);
+router.post('/catalog-translations/translate-all', requireAdmin, translateAllCatalog);
+router.post('/conteudos/translate-all', requireAdmin, translateAllContent);
+router.post('/conteudos/:id_texto/translate', requireAdmin, translateContent);
+router.use('/uploads', requireAdmin, uploadRouter);
+router.use("/conteudos", createCrudRouter(conteudosController, ":id_texto", protectedWrites));
+router.use("/linguas", createCrudRouter(linguasController, ":id_lingua", protectedWrites));
+router.use("/messages", createCrudRouter(messagesController, ":id_message", protectedRecords));
+router.use("/noticias", createCrudRouter(noticiasController, ":id_noticia", protectedWrites));
+router.use("/produtos", createCrudRouter(produtosController, ":id_prod", protectedWrites));
+router.use("/setores", createCrudRouter(setoresController, ":id_setor", protectedWrites));
+router.use("/traducoes", createCrudRouter(traducoesController, ":id_lingua/:id_texto", protectedWrites));
+router.use("/vistas-produto", createCrudRouter(vistasProdutoController, ":id_vista", protectedRecords));
+
+module.exports = router;

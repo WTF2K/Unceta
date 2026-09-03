@@ -439,7 +439,7 @@ function App() {
       {/* FOOTER */}
       <footer>
         <div className="wrap footer-inner">
-          <img className="footer-logo" src="http://localhost:5000/uploads/logo.png" alt="Unceta" />
+          <img className="footer-logo" src="http://localhost:5000/uploads/logo.m.b.png" alt="Unceta" />
           <div className="copyright">© 2026 Unceta. All rights reserved.</div>
         </div>
       </footer>

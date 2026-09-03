@@ -2,7 +2,7 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { notifyContentChanged, usePageContent } from './hooks/usePageContent';
 import './AdminPage.css';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 const adminFetch = (url, options = {}) => window.fetch(url, { credentials: 'include', ...options });
 
 function ContentEditorModal({ isLoading, isOpen, value, onCancel, onChange, onSave, onTranslate }) {

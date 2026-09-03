@@ -714,9 +714,9 @@ nav a:hover::after {
 
 .product-modal-image { min-height: 320px; }
 .product-modal-image img { height: 100%; object-fit: cover; }
-.product-modal-info { align-self: center; padding: 42px; }
+.product-modal-info { align-self: stretch; background: #f1f3f5; padding: 30px 42px 42px; }
 .product-modal-info h2 { color: var(--blue-dark); font-size: 34px; line-height: 1.15; margin-bottom: 18px; }
-.product-modal-info p { color: var(--muted); font-size: 16px; line-height: 1.7; }
+.product-modal-info p { color: var(--muted); font-size: 32px; line-height: 1.35; }
 .product-detail-link { background: var(--blue); color: white; display: inline-block; font-size: 14px; font-weight: 600; margin-top: 26px; padding: 12px 16px; }
 .product-detail-link:hover { background: var(--blue-dark); }
 
@@ -1167,6 +1167,10 @@ footer {
 
   .product-modal-info h2 {
     font-size: 28px;
+  }
+
+  .product-modal-info p {
+    font-size: 24px;
   }
 
   .about-photos {

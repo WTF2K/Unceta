@@ -4,7 +4,7 @@ import App from './App';
 import AdminPage from './AdminPage';
 import LoginPage from './LoginPage';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 function RequireAdmin({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);

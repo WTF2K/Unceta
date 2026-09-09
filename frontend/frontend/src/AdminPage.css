@@ -194,6 +194,9 @@
 }
 
 .certification-actions button:hover { background: rgba(255, 255, 255, 0.15); }
+.certification-image-preview { max-height: 120px; object-fit: contain; width: 100%; }
+.certifications-placeholder { border: 1px dashed rgba(255, 255, 255, .45); color: #d8e4f2; padding: 24px 32px; }
+.footer-logo { display: block; height: 42px; object-fit: contain; object-position: left center; width: auto; }
 
 /* Create Product Buttons */
 .btn-create-product,
@@ -664,6 +667,22 @@
 .translation-review-row label { color: #1c2733; font-size: 13px; font-weight: 600; }
 .translation-review-row input { margin: 0; }
 .translation-review-row button { background: #1455a3; border: 0; color: white; cursor: pointer; font: inherit; padding: 9px 12px; }
+.catalog-translation-row { grid-template-columns: minmax(150px, 1fr) minmax(150px, 1fr) minmax(180px, 1fr) auto; }
+.language-manager-modal { max-width: 920px; }
+.language-create-form { display: grid; gap: 10px; grid-template-columns: 1fr 1fr auto; margin: 18px 0; }
+.language-manager-list { display: grid; gap: 12px; margin-bottom: 18px; }
+.language-manager-item { align-items: center; display: flex; gap: 16px; justify-content: space-between; }
+.language-manager-choice { background: #eef4fb; border: 1px solid #c7d8eb; color: #1455a3; cursor: pointer; flex: 1; font: inherit; padding: 11px 14px; text-align: left; }
+.language-manager-choice.active { background: #1455a3; color: #fff; }
+.language-manager-delete { background: #fff; border: 1px solid #b42318; color: #b42318; cursor: pointer; font: inherit; padding: 10px 14px; }
+.language-manager-delete:hover { background: #b42318; color: #fff; }
+.language-create-form input, .language-manager-select, .translation-content-row textarea { border: 1px solid #dbe3ed; font: inherit; padding: 10px; }
+.language-manager-select { margin-bottom: 18px; width: 100%; }
+.translation-content-list { max-height: 52vh; overflow-y: auto; }
+.translation-content-row { align-items: center; border-bottom: 1px solid #dbe3ed; display: grid; gap: 10px; grid-template-columns: 180px minmax(0, 1fr) auto; padding: 10px 0; }
+.translation-content-row label { color: #1c2733; font-size: 13px; font-weight: 600; overflow-wrap: anywhere; }
+.translation-content-row textarea { resize: vertical; width: 100%; }
+.translation-content-row button { background: #1455a3; border: 0; color: white; cursor: pointer; font: inherit; padding: 9px 12px; }
 .reassignment-products { color: #657181; margin: 12px 0 20px 20px; }
 
 .sector-list,
@@ -745,6 +764,11 @@
   .dashboard-metrics { grid-template-columns: 1fr; }
   .dashboard-header { flex-direction: column; }
   .dashboard-actions { justify-content: flex-start; }
+  .language-create-form { grid-template-columns: 1fr; }
+  .language-manager-item { align-items: stretch; flex-direction: column; gap: 8px; }
+  .language-manager-delete { width: 100%; }
+  .language-manager-modal { max-height: 90vh; overflow-y: auto; }
+  .catalog-translation-row { grid-template-columns: 1fr; }
   .dashboard-section-heading, .dashboard-recent-messages div { align-items: flex-start; flex-direction: column; }
   .news-admin-row { grid-template-columns: 1fr; }
   .translation-review-row { grid-template-columns: 1fr; }

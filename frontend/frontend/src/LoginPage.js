@@ -36,7 +36,7 @@ function LoginPage() {
   return (
     <main className="login-page">
       <form className="login-form" onSubmit={handleSubmit}>
-        <a className="login-logo" href="/">UNCETA</a>
+        <a className="login-logo" href="/" aria-label="Unceta home"><img src="http://localhost:5000/uploads/logo.png" alt="Unceta" /></a>
         <h1>Admin sign in</h1>
         <p>Use the administrator account configured on the server.</p>
         {error && <div className="login-error" role="alert">{error}</div>}

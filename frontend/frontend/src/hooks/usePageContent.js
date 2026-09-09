@@ -15,6 +15,7 @@ export function usePageContent(sourceLanguage = null) {
   const [contents, setContents] = useState({});
   const [languages, setLanguages] = useState([]);
   const [translations, setTranslations] = useState({});
+  const [translationRecords, setTranslationRecords] = useState([]);
   const [activeLanguage, setActiveLanguageState] = useState(() => window.localStorage.getItem('unceta-language') || 'en');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -65,6 +66,7 @@ export function usePageContent(sourceLanguage = null) {
       });
       setContents(contentMap);
       setLanguages(languageData);
+      setTranslationRecords(translationData);
       setTranslations(translationMap);
     } catch (err) {
       setError(err.message);
@@ -102,6 +104,7 @@ export function usePageContent(sourceLanguage = null) {
   return {
     contents,
     languages,
+    translationRecords,
     activeLanguage,
     setActiveLanguage,
     getContent,

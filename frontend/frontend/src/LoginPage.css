@@ -19,12 +19,11 @@
 }
 
 .login-logo {
-  color: #1455a3;
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  display: block;
   margin-bottom: 10px;
 }
+
+.login-logo img { display: block; height: 42px; object-fit: contain; object-position: left center; width: auto; }
 
 .login-form h1 { color: #092b59; font-size: 28px; }
 .login-form p { color: #657181; margin-bottom: 14px; }

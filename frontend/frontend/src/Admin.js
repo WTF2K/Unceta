@@ -262,7 +262,7 @@ function Admin() {
       {/* HEADER */}
       <header>
         <div className="wrap header-inner">
-          <a href="/" className="logo">UNCETA</a>
+          <a href="/" className="logo"><img src="http://localhost:5000/uploads/logo.png" alt="Unceta" /></a>
           <nav>
             <a href="/">← Voltar ao site</a>
           </nav>

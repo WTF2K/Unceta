@@ -1,4 +1,5 @@
 const { linguas, produto_traducoes, produtos, setor_traducoes, setores } = require('../Config/database');
+const { Op } = require('sequelize');
 
 async function translateText(text, targetLanguage) {
   if (!text) return '';
@@ -12,8 +13,8 @@ async function translateText(text, targetLanguage) {
 }
 
 async function getTargetLanguages() {
-  const languages = await linguas.findAll({ where: { code: ['fr', 'de'] } });
-  if (languages.length !== 2) throw new Error('French and German must be configured first.');
+  const languages = await linguas.findAll({ where: { code: { [Op.ne]: 'en' } }, order: [['code', 'ASC']] });
+  if (languages.length === 0) throw new Error('At least one target language must be configured.');
   return languages;
 }
 
@@ -44,7 +45,7 @@ async function translateAllCatalog(req, res) {
       }
     }
 
-    return res.status(200).json({ products: productItems.length, sectors: sectorItems.length, languages: ['fr', 'de'] });
+    return res.status(200).json({ products: productItems.length, sectors: sectorItems.length, languages: targetLanguages.map((language) => language.code) });
   } catch (error) {
     return res.status(502).json({ message: 'Automatic catalog translation failed.', error: error.message });
   }

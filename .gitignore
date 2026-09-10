@@ -12,9 +12,6 @@ frontend/frontend/build/
 # Backup of the previous nested frontend Git metadata
 frontend/.frontend-git-backup/
 
-# Runtime user uploads
-backend/uploads/
-
 # Logs and OS/editor files
 *.log
 .DS_Store

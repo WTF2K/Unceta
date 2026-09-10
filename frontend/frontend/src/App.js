@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { usePageContent } from './hooks/usePageContent';
 import './App.css';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
+const ASSET_URL = API_URL.replace(/\/api\/?$/, '');
 
 function App() {
   const { activeLanguage, getContent, languages, setActiveLanguage } = usePageContent();
@@ -178,7 +179,7 @@ function App() {
       {/* HEADER */}
       <header>
         <div className="wrap header-inner">
-          <a href="/" className="logo" aria-label="Unceta home"><img src="http://localhost:5000/uploads/logo.png" alt="Unceta" /></a>
+          <a href="/" className="logo" aria-label="Unceta home"><img src={`${ASSET_URL}/uploads/logo.png`} alt="Unceta" /></a>
           <nav>
             <a href="#about">{getContent('nav_about', 'About Us')}</a>
             <a href="#industries">{getContent('nav_industries', 'Industries')}</a>
@@ -439,7 +440,7 @@ function App() {
       {/* FOOTER */}
       <footer>
         <div className="wrap footer-inner">
-          <img className="footer-logo" src="http://localhost:5000/uploads/logo.m.b.png" alt="Unceta" />
+          <img className="footer-logo" src={`${ASSET_URL}/uploads/logo.m.b.png`} alt="Unceta" />
           <div className="copyright">© 2026 Unceta. All rights reserved.</div>
         </div>
       </footer>

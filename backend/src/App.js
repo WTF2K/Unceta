@@ -9,6 +9,7 @@ const seedConteudos = require("./Seeds/conteudos.seed");
 const db = require("./Config/database");
 
 const app = express();
+const uploadDirectory = process.env.UPLOAD_DIR || path.join(__dirname, '../uploads');
 
 // CORS configuration
 app.use(cors({
@@ -21,13 +22,24 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(require('cookie-parser')());
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static(uploadDirectory));
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
 app.use("/api", routes);
+
+app.use("/api", (req, res) => {
+  res.status(404).json({ message: "Rota não encontrada." });
+});
+
+const frontendBuildPath = path.join(__dirname, '../../frontend/frontend/build');
+app.use(express.static(frontendBuildPath));
+
+app.get('/{*splat}', (req, res) => {
+  res.sendFile(path.join(frontendBuildPath, 'index.html'));
+});
 
 app.use((req, res) => {
   res.status(404).json({ message: "Rota não encontrada." });

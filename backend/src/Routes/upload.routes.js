@@ -3,8 +3,9 @@ const multer = require('multer');
 const path = require('path');
 
 const router = express.Router();
+const uploadDirectory = process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads');
 const storage = multer.diskStorage({
-  destination: path.join(__dirname, '../../uploads'),
+  destination: uploadDirectory,
   filename: (req, file, callback) => {
     callback(null, `${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_')}`);
   }

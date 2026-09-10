@@ -1,0 +1,49 @@
+services:
+  - type: web
+    name: unceta
+    runtime: node
+    buildCommand: cd backend && npm ci && cd ../frontend/frontend && npm ci && npm run build
+    startCommand: cd backend && npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
+      - key: DB_HOST
+        fromDatabase:
+          name: unceta-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: unceta-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: unceta-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: unceta-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: unceta-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+    disk:
+      name: unceta-uploads
+      mountPath: /var/data
+      sizeGB: 1
+    plan: starter
+
+databases:
+  - name: unceta-db
+    databaseName: unceta
+    user: unceta
+    plan: basic-256mb

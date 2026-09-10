@@ -1,13 +1,6 @@
 const { certificacao_traducoes, conteudos, linguas, noticia_traducoes, noticias } = require('../Config/database');
 const { Op } = require('sequelize');
-
-async function translateText(text, language) {
-  const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${language}`);
-  if (!response.ok) throw new Error('Translation provider is unavailable.');
-  const data = await response.json();
-  if (!data.responseData?.translatedText) throw new Error('Translation provider returned no translation.');
-  return data.responseData.translatedText;
-}
+const { translateText } = require('../Services/translation.service');
 
 async function getLanguages() {
   const languages = await linguas.findAll({ where: { code: { [Op.ne]: 'en' } }, order: [['code', 'ASC']] });

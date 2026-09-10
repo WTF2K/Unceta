@@ -4,6 +4,7 @@ import './App.css';
 
 const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
 const ASSET_URL = API_URL.replace(/\/api\/?$/, '');
+const getAssetUrl = (url) => url?.replace(/^https?:\/\/localhost(?::\d+)?\/uploads\//, `${ASSET_URL}/uploads/`) || '';
 
 function App() {
   const { activeLanguage, getContent, languages, setActiveLanguage } = usePageContent();
@@ -210,7 +211,7 @@ function App() {
       {/* HERO */}
       <section className="hero">
         <div className="hero-image">
-          {heroImage ? <img src={heroImage} alt="" /> : <div className="ph"></div>}
+          {heroImage ? <img src={getAssetUrl(heroImage)} alt="" /> : <div className="ph"></div>}
         </div>
         <div className="hero-content">
           <div className="small">{getContent('hero_subtitle', 'Industrial solutions & components')}</div>
@@ -245,7 +246,7 @@ function App() {
           <div className="about-photos">
             {[1, 2, 3, 4].map((index) => {
               const imageUrl = getContent(`about_image_${index}`, '');
-              return <div className="about-photo" key={index}>{imageUrl ? <img src={imageUrl} alt="" /> : <div className="ph"></div>}</div>;
+              return <div className="about-photo" key={index}>{imageUrl ? <img src={getAssetUrl(imageUrl)} alt="" /> : <div className="ph"></div>}</div>;
             })}
           </div>
         </div>
@@ -267,7 +268,7 @@ function App() {
             {sectors.map((sector) => (
               <button key={sector.id_setor} type="button" className="industry-card" onClick={() => selectSector(sector.id_setor)}>
                 <div className="industry-image">
-                  {sector.imagem ? <img src={sector.imagem} alt="" /> : <div className="ph"></div>}
+                  {sector.imagem ? <img src={getAssetUrl(sector.imagem)} alt="" /> : <div className="ph"></div>}
                 </div>
                 <div className="industry-overlay">
                   <h3>{getSectorName(sector)}</h3>
@@ -310,7 +311,7 @@ function App() {
             ) : visibleProducts.map(product => (
               <button key={product.id_prod} type="button" className="product-card" onClick={() => openProduct(product)}>
                 <div className="product-image">
-                  {product.imagem ? <img src={product.imagem} alt={getProductName(product)} /> : <div className="ph"></div>}
+                  {product.imagem ? <img src={getAssetUrl(product.imagem)} alt={getProductName(product)} /> : <div className="ph"></div>}
                 </div>
                 <div className="product-info">
                   <div className="product-sector">{getSectorName(sectors.find((sector) => sector.id_setor === product.id_setor))}</div>
@@ -343,7 +344,7 @@ function App() {
               <div className={`news-grid news-grid-${visibleNews.length}`}>
               {visibleNews.map((item) => (
                 <article className="news-card" key={item.id_noticia}>
-                  {item.imagem && <img src={item.imagem} alt={getNewsTitle(item)} />}
+                  {item.imagem && <img src={getAssetUrl(item.imagem)} alt={getNewsTitle(item)} />}
                   <div><time dateTime={item.data_publicacao}>{new Date(item.data_publicacao).toLocaleDateString()}</time><h3>{getNewsTitle(item)}</h3>{item.link !== '#' && <a href={item.link} target={item.link.startsWith('http') ? '_blank' : undefined} rel={item.link.startsWith('http') ? 'noreferrer' : undefined}>Read update</a>}</div>
                 </article>
               ))}
@@ -365,7 +366,7 @@ function App() {
           <div className="certifications">
             {qualityCertifications.length === 0 ? <div className="certifications-placeholder">Quality certifications will appear here.</div> : qualityCertifications.map((cert, idx) => (
               <div key={idx} className="certification">
-                {cert.image && <img src={cert.image} alt="Certificação de qualidade" />}
+                {cert.image && <img src={getAssetUrl(cert.image)} alt="Certificação de qualidade" />}
               </div>
             ))}
           </div>
@@ -453,7 +454,7 @@ function App() {
           <article className="product-modal" role="dialog" aria-modal="true" aria-labelledby="product-modal-title" onClick={(event) => event.stopPropagation()}>
             <button type="button" className="product-modal-close" onClick={() => setSelectedProduct(null)} aria-label="Close product details">&#215;</button>
             <div className="product-modal-image">
-              {selectedProduct.imagem ? <img src={selectedProduct.imagem} alt={getProductName(selectedProduct)} /> : <div className="ph"></div>}
+              {selectedProduct.imagem ? <img src={getAssetUrl(selectedProduct.imagem)} alt={getProductName(selectedProduct)} /> : <div className="ph"></div>}
             </div>
             <div className="product-modal-info">
               <div className="product-sector">{getSectorName(sectors.find((sector) => sector.id_setor === selectedProduct.id_setor))}</div>

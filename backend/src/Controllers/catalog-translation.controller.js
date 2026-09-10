@@ -1,16 +1,6 @@
 const { linguas, produto_traducoes, produtos, setor_traducoes, setores } = require('../Config/database');
 const { Op } = require('sequelize');
-
-async function translateText(text, targetLanguage) {
-  if (!text) return '';
-  const response = await fetch(
-    `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLanguage}`
-  );
-  if (!response.ok) throw new Error('Translation provider is unavailable.');
-  const result = await response.json();
-  if (!result.responseData?.translatedText) throw new Error('Translation provider returned no translation.');
-  return result.responseData.translatedText;
-}
+const { translateText } = require('../Services/translation.service');
 
 async function getTargetLanguages() {
   const languages = await linguas.findAll({ where: { code: { [Op.ne]: 'en' } }, order: [['code', 'ASC']] });

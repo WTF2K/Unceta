@@ -445,17 +445,20 @@ function AdminPage() {
   const translateAllContent = async () => {
     setIsLoading(true);
     try {
-      const [contentResponse, catalogResponse, dynamicResponse] = await Promise.all([
-        adminFetch(`${API_URL}/conteudos/translate-all`, { method: 'POST' }),
-        adminFetch(`${API_URL}/catalog-translations/translate-all`, { method: 'POST' }),
-        adminFetch(`${API_URL}/dynamic-translations/translate-all`, { method: 'POST' })
-      ]);
-      if (!contentResponse.ok || !catalogResponse.ok || !dynamicResponse.ok) {
-        const failedResponse = !contentResponse.ok ? contentResponse : (!catalogResponse.ok ? catalogResponse : dynamicResponse);
-        const error = await failedResponse.json();
-        throw new Error(error.message || 'Erro ao traduzir o site');
+      const requests = [
+        `${API_URL}/conteudos/translate-all`,
+        `${API_URL}/catalog-translations/translate-all`,
+        `${API_URL}/dynamic-translations/translate-all`
+      ];
+      const results = [];
+
+      for (const url of requests) {
+        const response = await adminFetch(url, { method: 'POST' });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || result.message || 'Erro ao traduzir o site');
+        results.push(result);
       }
-      const [contentResult, catalogResult, dynamicResult] = await Promise.all([contentResponse.json(), catalogResponse.json(), dynamicResponse.json()]);
+      const [contentResult, catalogResult, dynamicResult] = results;
       await refreshContent();
       notifyContentChanged();
       showMessage(`${contentResult.translatedContent} textos, ${catalogResult.products} produtos, ${catalogResult.sectors} setores, ${dynamicResult.news} notícias e ${dynamicResult.certifications} certificações traduzidos automaticamente.`, 'success');

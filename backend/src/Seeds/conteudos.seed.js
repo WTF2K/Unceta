@@ -5,12 +5,8 @@ const seedConteudos = async (db) => {
     const languageData = [
       { code: 'en', nome: 'English' },
       { code: 'fr', nome: 'Francais' },
-      { code: 'es', nome: 'Español' }
+      { code: 'de', nome: 'Deutsch' }
     ];
-
-    const germanLanguage = await linguas.findOne({ where: { code: 'de' } });
-    const spanishLanguage = await linguas.findOne({ where: { code: 'es' } });
-    if (germanLanguage && !spanishLanguage) await germanLanguage.update({ code: 'es', nome: 'Español' });
 
     for (const language of languageData) {
       await linguas.findOrCreate({ where: { code: language.code }, defaults: language });
@@ -31,7 +27,6 @@ const seedConteudos = async (db) => {
       { chave: 'form_email_placeholder', texto: 'Your email' },
       { chave: 'form_message_placeholder', texto: 'How can we help you?' },
       { chave: 'form_send_button', texto: 'Send message' },
-      { chave: 'form_sending', texto: 'Sending...' },
       { chave: 'hero_image', texto: '' },
       { chave: 'about_image_1', texto: '' },
       { chave: 'about_image_2', texto: '' },
@@ -63,15 +58,12 @@ const seedConteudos = async (db) => {
       { chave: 'quality_label', texto: 'Quality & reliability' },
       { chave: 'quality_title', texto: 'Quality you can trust.' },
       { chave: 'quality_description', texto: 'We work with suppliers that meet recognized quality standards and demanding requirements for professional industrial applications.' },
-        { chave: 'quality_certifications', texto: '[]' },
+        { chave: 'quality_certifications', texto: '[{"code":"ISO","num":"9001","text":"Quality Management"},{"code":"IATF","num":"16949","text":"Automotive Quality"},{"code":"ISO","num":"14001","text":"Environmental Management"}]' },
 
       // Contact section
       { chave: 'contact_label', texto: 'Contact' },
       { chave: 'contact_title', texto: "Let's connect." },
       { chave: 'contact_description', texto: 'Looking for the right component or industrial solution? Get in touch with our team.' },
-      { chave: 'contact_address_label', texto: 'Address' },
-      { chave: 'contact_phone_label', texto: 'Phone' },
-      { chave: 'contact_email_label', texto: 'Email' },
       { chave: 'contact_address', texto: 'Estrada Nacional 1, 137\n3850-052 Albergaria-a-Velha, Portugal' },
       { chave: 'contact_phone', texto: '+351 234 529 670' },
       { chave: 'contact_email', texto: 'geral@unceta.pt' },

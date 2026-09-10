@@ -5,7 +5,7 @@ const { getCatalogTranslations, translateAllCatalog } = require('../Controllers/
 const { translateAllContent, translateContent } = require('../Controllers/content-translation.controller');
 const { login, logout, session, changePassword } = require('../Controllers/auth.controller');
 const { requireAdmin } = require('../Middleware/auth.middleware');
-const { getReviewData, saveCertificationTranslation, saveNewsTranslation, saveProductTranslation, saveSectorTranslation } = require('../Controllers/translation-review.controller');
+const { getReviewData, saveCertificationTranslation, saveNewsTranslation } = require('../Controllers/translation-review.controller');
 const { getSectorProducts, reassignAndDelete } = require('../Controllers/sector-reassignment.controller');
 const { getPublicDynamicTranslations, translateDynamicContent } = require('../Controllers/dynamic-translation.controller');
 
@@ -32,8 +32,6 @@ router.post('/dynamic-translations/translate-all', requireAdmin, translateDynami
 router.get('/translation-review', requireAdmin, getReviewData);
 router.put('/translation-review/news/:id_noticia/:id_lingua', requireAdmin, saveNewsTranslation);
 router.put('/translation-review/certifications/:indice/:id_lingua', requireAdmin, saveCertificationTranslation);
-router.put('/translation-review/products/:id_prod/:id_lingua', requireAdmin, saveProductTranslation);
-router.put('/translation-review/sectors/:id_setor/:id_lingua', requireAdmin, saveSectorTranslation);
 router.get('/setores/:id_setor/products', requireAdmin, getSectorProducts);
 router.put('/setores/:id_setor/reassign', requireAdmin, reassignAndDelete);
 router.get('/dashboard', requireAdmin, vistasProdutoController.getDashboardStats);

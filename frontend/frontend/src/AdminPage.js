@@ -5,7 +5,7 @@ import './AdminPage.css';
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 const adminFetch = (url, options = {}) => window.fetch(url, { credentials: 'include', ...options });
 
-function ContentEditorModal({ isLoading, isOpen, value, onCancel, onChange, onSave }) {
+function ContentEditorModal({ isLoading, isOpen, value, onCancel, onChange, onSave, onTranslate }) {
   if (!isOpen) return null;
 
   return (
@@ -21,6 +21,7 @@ function ContentEditorModal({ isLoading, isOpen, value, onCancel, onChange, onSa
         />
         <div className="modal-actions">
           <button className="btn-save" onClick={onSave} disabled={isLoading}>Guardar</button>
+          <button className="btn-translate" onClick={onTranslate} disabled={isLoading}>Traduzir FR + DE</button>
           <button className="btn-cancel" onClick={onCancel}>Cancelar</button>
         </div>
       </div>
@@ -65,14 +66,16 @@ function NewsEditorModal({ isLoading, news, onCancel, onChange, onSave, onUpload
   );
 }
 
-function CertificationEditorModal({ certification, isLoading, onCancel, onChange, onSave, onUpload }) {
+function CertificationEditorModal({ certification, isLoading, onCancel, onChange, onSave }) {
   if (!certification) return null;
 
   return (
     <div className="modal-overlay active" onClick={onCancel}>
       <div className="modal-content" onClick={(event) => event.stopPropagation()}>
         <h3>{certification.index === null ? 'Nova certificação' : 'Editar certificação'}</h3>
-        <div className="form-group"><label htmlFor="certification-image">Imagem</label><input id="certification-image" type="file" accept="image/*" onChange={(event) => onUpload(event.target.files[0])} disabled={isLoading} required={!certification.image} />{certification.image && <img className="image-preview certification-image-preview" src={certification.image} alt="Pré-visualização da certificação" />}</div>
+        <div className="form-group"><label htmlFor="certification-code">Código</label><input id="certification-code" value={certification.code} onChange={(event) => onChange({ code: event.target.value })} required /></div>
+        <div className="form-group"><label htmlFor="certification-number">Número</label><input id="certification-number" value={certification.num} onChange={(event) => onChange({ num: event.target.value })} required /></div>
+        <div className="form-group"><label htmlFor="certification-text">Descrição</label><input id="certification-text" value={certification.text} onChange={(event) => onChange({ text: event.target.value })} required /></div>
         <div className="modal-actions"><button className="btn-save" onClick={onSave} disabled={isLoading}>Guardar</button><button className="btn-cancel" onClick={onCancel}>Cancelar</button></div>
       </div>
     </div>
@@ -82,13 +85,9 @@ function CertificationEditorModal({ certification, isLoading, onCancel, onChange
 function TranslationReviewModal({ review, drafts, isLoading, onCancel, onChange, onSave }) {
   if (!review) return null;
   const getNewsKey = (newsId, languageId) => `news:${newsId}:${languageId}`;
-  const getCatalogKey = (type, itemId, languageId) => `${type}:${itemId}:${languageId}`;
+  const getCertificationKey = (index, languageId) => `certification:${index}:${languageId}`;
   const existingNews = (newsId, languageId) => review.newsTranslations.find((item) => item.id_noticia === newsId && item.id_lingua === languageId)?.titulo || '';
-  const existingCatalog = (type, itemId, languageId) => {
-    const translations = type === 'product' ? review.productTranslations : review.sectorTranslations;
-    const key = type === 'product' ? 'id_prod' : 'id_setor';
-    return translations.find((item) => item[key] === itemId && item.id_lingua === languageId) || {};
-  };
+  const existingCertification = (index, languageId) => review.certificationTranslations.find((item) => item.indice === index && item.id_lingua === languageId)?.texto || '';
 
   return (
     <div className="modal-overlay active" onClick={onCancel}>
@@ -99,40 +98,11 @@ function TranslationReviewModal({ review, drafts, isLoading, onCancel, onChange,
           const key = getNewsKey(item.id_noticia, language.id_lingua);
           return <div className="translation-review-row" key={key}><label>{language.code.toUpperCase()} · {item.titulo}</label><input value={drafts[key] ?? existingNews(item.id_noticia, language.id_lingua)} placeholder="Em falta" onChange={(event) => onChange(key, event.target.value)} /><button onClick={() => onSave('news', item.id_noticia, language.id_lingua, drafts[key] ?? existingNews(item.id_noticia, language.id_lingua))} disabled={isLoading}>Guardar</button></div>;
         }))}
-        <h4>Produtos</h4>
-        {review.products.map((item) => review.languages.map((language) => {
-          const translation = existingCatalog('product', item.id_prod, language.id_lingua);
-          const key = getCatalogKey('product', item.id_prod, language.id_lingua);
-          return <div className="translation-review-row catalog-translation-row" key={key}><label>{language.code.toUpperCase()} · {item.nome}</label><input value={drafts[key] ?? translation.nome ?? ''} placeholder="Nome traduzido" onChange={(event) => onChange(key, event.target.value)} /><textarea value={drafts[`${key}:description`] ?? translation.descricao ?? ''} placeholder="Descrição traduzida" onChange={(event) => onChange(`${key}:description`, event.target.value)} /><button onClick={() => onSave('product', item.id_prod, language.id_lingua, drafts[key] ?? translation.nome ?? '', drafts[`${key}:description`] ?? translation.descricao ?? '')} disabled={isLoading}>Guardar</button></div>;
+        <h4>Certificações</h4>
+        {review.certifications.map((item, index) => review.languages.map((language) => {
+          const key = getCertificationKey(index, language.id_lingua);
+          return <div className="translation-review-row" key={key}><label>{language.code.toUpperCase()} · {item.code} {item.num}: {item.text}</label><input value={drafts[key] ?? existingCertification(index, language.id_lingua)} placeholder="Em falta" onChange={(event) => onChange(key, event.target.value)} /><button onClick={() => onSave('certification', index, language.id_lingua, drafts[key] ?? existingCertification(index, language.id_lingua))} disabled={isLoading}>Guardar</button></div>;
         }))}
-        <h4>Setores</h4>
-        {review.sectors.map((item) => review.languages.map((language) => {
-          const translation = existingCatalog('sector', item.id_setor, language.id_lingua);
-          const key = getCatalogKey('sector', item.id_setor, language.id_lingua);
-          return <div className="translation-review-row catalog-translation-row" key={key}><label>{language.code.toUpperCase()} · {item.nome}</label><input value={drafts[key] ?? translation.nome ?? ''} placeholder="Nome traduzido" onChange={(event) => onChange(key, event.target.value)} /><textarea value={drafts[`${key}:description`] ?? translation.descricao ?? ''} placeholder="Descrição traduzida" onChange={(event) => onChange(`${key}:description`, event.target.value)} /><button onClick={() => onSave('sector', item.id_setor, language.id_lingua, drafts[key] ?? translation.nome ?? '', drafts[`${key}:description`] ?? translation.descricao ?? '')} disabled={isLoading}>Guardar</button></div>;
-        }))}
-        <div className="modal-actions"><button className="btn-cancel" onClick={onCancel}>Fechar</button></div>
-      </div>
-    </div>
-  );
-}
-
-function LanguageManagerModal({ languages, contents, translationRecords, selectedLanguageId, newLanguage, isLoading, onCancel, onSelectLanguage, onNewLanguageChange, onCreateLanguage, onSaveTranslation, onDeleteLanguage }) {
-  const targetLanguages = languages.filter((language) => language.code !== 'en');
-  const contentItems = Object.values(contents).filter((content) => !content.chave.includes('_image'));
-  const getTranslation = (contentId) => translationRecords.find((translation) => translation.id_lingua === Number(selectedLanguageId) && translation.id_texto === contentId)?.texto_trad || '';
-
-  return (
-    <div className="modal-overlay active" onClick={onCancel}>
-      <div className="modal-content language-manager-modal" onClick={(event) => event.stopPropagation()}>
-        <h3>Idiomas e traduções</h3>
-        <form className="language-create-form" onSubmit={onCreateLanguage}>
-          <input aria-label="Código do idioma" maxLength="10" placeholder="Código (ex.: es)" value={newLanguage.code} onChange={(event) => onNewLanguageChange({ ...newLanguage, code: event.target.value })} required />
-          <input aria-label="Nome do idioma" placeholder="Nome (ex.: Español)" value={newLanguage.nome} onChange={(event) => onNewLanguageChange({ ...newLanguage, nome: event.target.value })} required />
-          <button className="btn-save" type="submit" disabled={isLoading}>Adicionar idioma</button>
-        </form>
-        {targetLanguages.length === 0 ? <p>Adicione o primeiro idioma de destino.</p> : <div className="language-manager-list">{targetLanguages.map((language) => <div className="language-manager-item" key={language.id_lingua}><button className={`language-manager-choice ${String(selectedLanguageId) === String(language.id_lingua) ? 'active' : ''}`} onClick={() => onSelectLanguage(String(language.id_lingua))}>{language.nome} ({language.code.toUpperCase()})</button><button className="language-manager-delete" onClick={() => onDeleteLanguage(language)} disabled={isLoading} aria-label={`Eliminar ${language.nome}`}>Eliminar</button></div>)}</div>}
-        {selectedLanguageId && <div className="translation-content-list">{contentItems.map((content) => <div className="translation-content-row" key={content.id_texto}><label htmlFor={`translation-${content.id_texto}`}>{content.chave}</label><textarea key={`${selectedLanguageId}-${content.id_texto}`} id={`translation-${content.id_texto}`} defaultValue={getTranslation(content.id_texto)} rows="2" placeholder="Tradução em falta" /><button className="btn-save" onClick={(event) => onSaveTranslation(event, content, event.currentTarget.previousElementSibling.value)} disabled={isLoading}>Guardar</button></div>)}</div>}
         <div className="modal-actions"><button className="btn-cancel" onClick={onCancel}>Fechar</button></div>
       </div>
     </div>
@@ -140,7 +110,7 @@ function LanguageManagerModal({ languages, contents, translationRecords, selecte
 }
 
 function AdminPage() {
-  const { contents, languages, translationRecords, getContent, refreshContent } = usePageContent('en');
+  const { contents, getContent, refreshContent } = usePageContent('en');
   const [editMode, setEditMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState(null);
@@ -166,9 +136,6 @@ function AdminPage() {
   const [translationDrafts, setTranslationDrafts] = useState({});
   const [sectorReassignment, setSectorReassignment] = useState(null);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [isLanguageManagerOpen, setIsLanguageManagerOpen] = useState(false);
-  const [selectedLanguageId, setSelectedLanguageId] = useState('');
-  const [newLanguage, setNewLanguage] = useState({ code: '', nome: '' });
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmation: '' });
 
   const fetchProducts = useCallback(async () => {
@@ -252,13 +219,13 @@ function AdminPage() {
   };
 
   const saveCertification = async () => {
-    const { index, image } = certificationEdit;
-    if (!image) {
-      showMessage('Selecione uma imagem para a certificação.', 'error');
+    const { code, index, num, text } = certificationEdit;
+    if (!code.trim() || !num.trim() || !text.trim()) {
+      showMessage('Preencha todos os campos da certificação.', 'error');
       return;
     }
     const certifications = [...qualityCertifications];
-    const certification = { image };
+    const certification = { code: code.trim(), num: num.trim(), text: text.trim() };
     if (index === null) certifications.push(certification);
     else certifications[index] = certification;
     await saveCertifications(certifications);
@@ -279,7 +246,7 @@ function AdminPage() {
     }
   };
 
-  const saveReviewedTranslation = async (type, recordId, languageId, value, description = '') => {
+  const saveReviewedTranslation = async (type, recordId, languageId, value) => {
     if (!value.trim()) {
       showMessage('A tradução não pode estar vazia.', 'error');
       return;
@@ -288,15 +255,11 @@ function AdminPage() {
     try {
       const route = type === 'news'
         ? `${API_URL}/translation-review/news/${recordId}/${languageId}`
-        : type === 'product'
-          ? `${API_URL}/translation-review/products/${recordId}/${languageId}`
-          : type === 'sector'
-            ? `${API_URL}/translation-review/sectors/${recordId}/${languageId}`
-            : `${API_URL}/translation-review/certifications/${recordId}/${languageId}`;
+        : `${API_URL}/translation-review/certifications/${recordId}/${languageId}`;
       const response = await adminFetch(route, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(type === 'news' ? { titulo: value } : type === 'product' || type === 'sector' ? { nome: value, descricao: description } : { texto: value })
+        body: JSON.stringify(type === 'news' ? { titulo: value } : { texto: value })
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || 'Erro ao guardar tradução');
@@ -309,47 +272,73 @@ function AdminPage() {
     }
   };
 
-  const createLanguage = async (event) => {
-    event.preventDefault();
-    setIsLoading(true);
-    try {
-      const response = await adminFetch(`${API_URL}/linguas`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: newLanguage.code.trim().toLowerCase(), nome: newLanguage.nome.trim() }) });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.message || 'Erro ao adicionar idioma');
-      setNewLanguage({ code: '', nome: '' });
-      setSelectedLanguageId(String(result.id_lingua));
-      await refreshContent();
-      showMessage('Idioma adicionado.', 'success');
-    } catch (error) { showMessage(error.message, 'error'); } finally { setIsLoading(false); }
-  };
+  const translateContent = async (key) => {
+    const contentItem = contents[key];
+    if (!contentItem) {
+      showMessage('Guarde o conteúdo em inglês antes de traduzir.', 'error');
+      return;
+    }
 
-  const deleteLanguage = async (language) => {
-    if (!window.confirm(`Eliminar o idioma ${language.nome} e todas as suas traduções?`)) return;
     setIsLoading(true);
     try {
-      const response = await adminFetch(`${API_URL}/linguas/${language.id_lingua}`, { method: 'DELETE' });
+      const response = await adminFetch(`${API_URL}/conteudos/${contentItem.id_texto}/translate`, { method: 'POST' });
       if (!response.ok) {
-        const result = await response.json();
-        throw new Error(result.message || 'Erro ao eliminar idioma');
+        const error = await response.json();
+        throw new Error(error.message || 'Erro ao traduzir conteúdo');
       }
-      if (String(selectedLanguageId) === String(language.id_lingua)) setSelectedLanguageId('');
       await refreshContent();
-      showMessage('Idioma eliminado.', 'success');
-    } catch (error) { showMessage(error.message, 'error'); } finally { setIsLoading(false); }
+      notifyContentChanged();
+      showMessage('Traduções em francês e alemão guardadas!', 'success');
+    } catch (error) {
+      showMessage(error.message, 'error');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const saveContentTranslation = async (event, content, value) => {
-    event.preventDefault();
-    if (!value.trim()) { showMessage('A tradução não pode estar vazia.', 'error'); return; }
+  const translateAllContent = async () => {
     setIsLoading(true);
     try {
-      const existing = translationRecords.find((translation) => translation.id_lingua === Number(selectedLanguageId) && translation.id_texto === content.id_texto);
-      const response = await adminFetch(existing ? `${API_URL}/traducoes/${selectedLanguageId}/${content.id_texto}` : `${API_URL}/traducoes`, { method: existing ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(existing ? { texto_trad: value.trim() } : { id_lingua: Number(selectedLanguageId), id_texto: content.id_texto, texto_trad: value.trim() }) });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.message || 'Erro ao guardar tradução');
+      const [contentResponse, catalogResponse, dynamicResponse] = await Promise.all([
+        adminFetch(`${API_URL}/conteudos/translate-all`, { method: 'POST' }),
+        adminFetch(`${API_URL}/catalog-translations/translate-all`, { method: 'POST' }),
+        adminFetch(`${API_URL}/dynamic-translations/translate-all`, { method: 'POST' })
+      ]);
+      if (!contentResponse.ok || !catalogResponse.ok || !dynamicResponse.ok) {
+        const failedResponse = !contentResponse.ok ? contentResponse : (!catalogResponse.ok ? catalogResponse : dynamicResponse);
+        const error = await failedResponse.json();
+        throw new Error(error.message || 'Erro ao traduzir o site');
+      }
+      const [contentResult, catalogResult, dynamicResult] = await Promise.all([
+        contentResponse.json(),
+        catalogResponse.json(),
+        dynamicResponse.json()
+      ]);
       await refreshContent();
-      showMessage('Tradução guardada.', 'success');
-    } catch (error) { showMessage(error.message, 'error'); } finally { setIsLoading(false); }
+      notifyContentChanged();
+      showMessage(`${contentResult.translatedContent} textos, ${catalogResult.products} produtos, ${catalogResult.sectors} setores, ${dynamicResult.news} notícias e ${dynamicResult.certifications} certificações traduzidos!`, 'success');
+    } catch (error) {
+      showMessage(error.message, 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const translateCatalog = async () => {
+    setIsLoading(true);
+    try {
+      const response = await adminFetch(`${API_URL}/catalog-translations/translate-all`, { method: 'POST' });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Erro ao traduzir catálogo');
+      }
+      const result = await response.json();
+      showMessage(`${result.products} produtos e ${result.sectors} setores traduzidos!`, 'success');
+    } catch (error) {
+      showMessage(error.message, 'error');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const saveContent = async (key, value) => {
@@ -419,30 +408,6 @@ function AdminPage() {
       console.error('Save Error:', error.message);
       showMessage(`Erro ao salvar: ${error.message}`, 'error');
       return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const translateAllContent = async () => {
-    setIsLoading(true);
-    try {
-      const [contentResponse, catalogResponse, dynamicResponse] = await Promise.all([
-        adminFetch(`${API_URL}/conteudos/translate-all`, { method: 'POST' }),
-        adminFetch(`${API_URL}/catalog-translations/translate-all`, { method: 'POST' }),
-        adminFetch(`${API_URL}/dynamic-translations/translate-all`, { method: 'POST' })
-      ]);
-      if (!contentResponse.ok || !catalogResponse.ok || !dynamicResponse.ok) {
-        const failedResponse = !contentResponse.ok ? contentResponse : (!catalogResponse.ok ? catalogResponse : dynamicResponse);
-        const error = await failedResponse.json();
-        throw new Error(error.message || 'Erro ao traduzir o site');
-      }
-      const [contentResult, catalogResult, dynamicResult] = await Promise.all([contentResponse.json(), catalogResponse.json(), dynamicResponse.json()]);
-      await refreshContent();
-      notifyContentChanged();
-      showMessage(`${contentResult.translatedContent} textos, ${catalogResult.products} produtos, ${catalogResult.sectors} setores, ${dynamicResult.news} notícias e ${dynamicResult.certifications} certificações traduzidos automaticamente.`, 'success');
-    } catch (error) {
-      showMessage(error.message, 'error');
     } finally {
       setIsLoading(false);
     }
@@ -813,23 +778,6 @@ function AdminPage() {
     }
   };
 
-  const uploadCertificationImage = async (file) => {
-    if (!file) return;
-    setIsLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append('image', file);
-      const response = await adminFetch(`${API_URL}/uploads`, { method: 'POST', body: formData });
-      if (!response.ok) throw new Error('Erro ao carregar imagem');
-      const { imageUrl } = await response.json();
-      setCertificationEdit((certification) => ({ ...certification, image: imageUrl }));
-    } catch (error) {
-      showMessage(error.message, 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const EditorButton = ({ keyCont, currentValue }) => (
     <button
       className="edit-btn"
@@ -849,6 +797,11 @@ function AdminPage() {
       } else {
         await saveProduct();
       }
+    };
+
+    const handleTranslateClick = async () => {
+      const saved = await saveContent(editingContent, editValue);
+      if (saved) await translateContent(editingContent);
     };
 
     return (
@@ -874,6 +827,13 @@ function AdminPage() {
                   disabled={isLoading}
                 >
                   Guardar
+                </button>
+                <button
+                  className="btn-translate"
+                  onClick={handleTranslateClick}
+                  disabled={isLoading}
+                >
+                  Traduzir FR + DE
                 </button>
                 <button
                   className="btn-cancel"
@@ -994,7 +954,7 @@ function AdminPage() {
       {/* HEADER */}
       <header>
         <div className="wrap header-inner">
-          <a href="/" className="logo"><img src="http://localhost:5000/uploads/logo.png" alt="Unceta" /></a>
+          <a href="/" className="logo">UNCETA</a>
           <nav>
             <a href="/">← Voltar ao site</a>
             <a href="#dashboard">Painel</a>
@@ -1024,9 +984,9 @@ function AdminPage() {
               <button className={`edit-mode-toggle ${editMode ? 'active' : ''}`} onClick={() => setEditMode(!editMode)}>
                 {editMode ? 'Terminar edição' : 'Editar site'}
               </button>
-              <button className="btn-translate" onClick={translateAllContent} disabled={isLoading}>Traduzir automaticamente</button>
+              <button className="btn-translate" onClick={translateAllContent} disabled={isLoading}>Traduzir todo o site</button>
+              <button className="btn-translate" onClick={translateCatalog} disabled={isLoading}>Traduzir produtos e setores</button>
               <button className="dashboard-password-button" onClick={openTranslationReview}>Rever traduções</button>
-              <button className="dashboard-password-button" onClick={() => setIsLanguageManagerOpen(true)}>Idiomas e traduções</button>
               <button className="dashboard-password-button" onClick={() => setIsPasswordModalOpen(true)}>Alterar palavra-passe</button>
               <button className="dashboard-password-button" onClick={() => fetchDashboard()}>Atualizar resumo</button>
             </div>
@@ -1300,11 +1260,11 @@ function AdminPage() {
             {editMode && <EditorButton keyCont="quality_description" currentValue={getContent('quality_description', 'We work with suppliers that meet recognized quality standards and demanding requirements for professional industrial applications.')} />}
             {getContent('quality_description', 'We work with suppliers that meet recognized quality standards and demanding requirements for professional industrial applications.')}
           </p>
-          {editMode && <button className="btn-create-certification" onClick={() => setCertificationEdit({ index: null, image: '' })}>Nova certificação</button>}
+          {editMode && <button className="btn-create-certification" onClick={() => setCertificationEdit({ index: null, code: '', num: '', text: '' })}>Nova certificação</button>}
           <div className="certifications">
-            {qualityCertifications.length === 0 ? <div className="certifications-placeholder">Ainda não existem certificações.</div> : qualityCertifications.map((cert, idx) => (
-              <div key={`${cert.image}-${idx}`} className="certification certification-editable">
-                {cert.image && <img src={cert.image} alt="Certificação de qualidade" />}
+            {qualityCertifications.map((cert, idx) => (
+              <div key={`${cert.code}-${cert.num}-${idx}`} className="certification certification-editable">
+                <div>{cert.code}<br /><strong>{cert.num}</strong><small>{cert.text}</small></div>
                 {editMode && <div className="certification-actions"><button onClick={() => setCertificationEdit({ index: idx, ...cert })}>Editar</button><button onClick={() => deleteCertification(idx)}>Eliminar</button></div>}
               </div>
             ))}
@@ -1390,7 +1350,7 @@ function AdminPage() {
       {/* FOOTER */}
       <footer>
         <div className="wrap footer-inner">
-          <img className="footer-logo" src="http://localhost:5000/uploads/logo.m.b.png" alt="Unceta" />
+          <div className="footer-logo">UNCETA</div>
           <div className="copyright">© 2026 Unceta. All rights reserved.</div>
         </div>
       </footer>
@@ -1403,6 +1363,10 @@ function AdminPage() {
         onCancel={() => setEditingContent(null)}
         onChange={setEditValue}
         onSave={() => saveContent(editingContent, editValue)}
+        onTranslate={async () => {
+          const saved = await saveContent(editingContent, editValue);
+          if (saved) await translateContent(editingContent);
+        }}
       />
       <ImageEditorModal isOpen={editingImageKey !== null} isLoading={isLoading} onCancel={() => setEditingImageKey(null)} onUpload={uploadSiteImage} />
       <NewsEditorModal
@@ -1419,7 +1383,6 @@ function AdminPage() {
         onCancel={() => setCertificationEdit(null)}
         onChange={(changes) => setCertificationEdit((item) => ({ ...item, ...changes }))}
         onSave={saveCertification}
-        onUpload={uploadCertificationImage}
       />
       <TranslationReviewModal
         review={translationReview}
@@ -1429,20 +1392,6 @@ function AdminPage() {
         onChange={(key, value) => setTranslationDrafts((drafts) => ({ ...drafts, [key]: value }))}
         onSave={saveReviewedTranslation}
       />
-      {isLanguageManagerOpen && <LanguageManagerModal
-        languages={languages}
-        contents={contents}
-        translationRecords={translationRecords}
-        selectedLanguageId={selectedLanguageId}
-        newLanguage={newLanguage}
-        isLoading={isLoading}
-        onCancel={() => setIsLanguageManagerOpen(false)}
-        onSelectLanguage={setSelectedLanguageId}
-        onNewLanguageChange={setNewLanguage}
-        onCreateLanguage={createLanguage}
-        onSaveTranslation={saveContentTranslation}
-        onDeleteLanguage={deleteLanguage}
-      />}
       {sectorReassignment && (
         <div className="modal-overlay active" onClick={() => setSectorReassignment(null)}>
           <div className="modal-content" onClick={(event) => event.stopPropagation()}>

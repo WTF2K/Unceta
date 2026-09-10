@@ -22,7 +22,6 @@ function App() {
   const [newsCarouselStart, setNewsCarouselStart] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSectorId, setSelectedSectorId] = useState(null);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -163,6 +162,7 @@ function App() {
   const getProductDescription = (product) => getCatalogTranslation('products', product)?.descricao || product.descricao;
   const getLanguageId = () => languages.find((language) => language.code === activeLanguage)?.id_lingua;
   const getNewsTitle = (item) => dynamicTranslations.news[`${getLanguageId()}:${item.id_noticia}`] || item.titulo;
+  const getCertificationText = (item, index) => dynamicTranslations.certifications[`${getLanguageId()}:${index}`] || item.text;
   const heroImage = getContent('hero_image', '');
   const qualityCertifications = (() => {
     try {
@@ -179,28 +179,25 @@ function App() {
       <header>
         <div className="wrap header-inner">
           <a href="/" className="logo" aria-label="Unceta home"><img src="http://localhost:5000/uploads/logo.png" alt="Unceta" /></a>
-          <button
-            type="button"
-            className={`mobile-menu-toggle ${isMobileMenuOpen ? 'active' : ''}`}
-            aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-            aria-expanded={isMobileMenuOpen}
-            onClick={() => setIsMobileMenuOpen((open) => !open)}
-          >
-            <span></span><span></span><span></span>
-          </button>
-          <nav className={isMobileMenuOpen ? 'mobile-menu-open' : ''}>
-            <a href="#about" onClick={() => setIsMobileMenuOpen(false)}>{getContent('nav_about', 'About Us')}</a>
-            <a href="#industries" onClick={() => setIsMobileMenuOpen(false)}>{getContent('nav_industries', 'Industries')}</a>
-            <a href="#products" onClick={() => setIsMobileMenuOpen(false)}>{getContent('nav_products', 'Solutions')}</a>
-            <a href="#news" onClick={() => setIsMobileMenuOpen(false)}>{getContent('nav_news', 'News')}</a>
-            <a href="#quality" onClick={() => setIsMobileMenuOpen(false)}>{getContent('nav_quality', 'Quality')}</a>
-            <a href="#contacts" onClick={() => setIsMobileMenuOpen(false)}>{getContent('nav_contacts', 'Contacts')}</a>
+          <nav>
+            <a href="#about">{getContent('nav_about', 'About Us')}</a>
+            <a href="#industries">{getContent('nav_industries', 'Industries')}</a>
+            <a href="#products">{getContent('nav_products', 'Solutions')}</a>
+            <a href="#news">{getContent('nav_news', 'News')}</a>
+            <a href="#quality">{getContent('nav_quality', 'Quality')}</a>
+            <a href="#contacts">{getContent('nav_contacts', 'Contacts')}</a>
           </nav>
           <div className="language language-selector" aria-label="Select language">
-            <label className="language-select-label" htmlFor="site-language">Language</label>
-            <select id="site-language" value={activeLanguage} onChange={(event) => setActiveLanguage(event.target.value)}>
-              {languages.map((language) => <option value={language.code} key={language.code}>{language.nome} ({language.code.toUpperCase()})</option>)}
-            </select>
+            {languages.map((language) => (
+              <button
+                type="button"
+                className={activeLanguage === language.code ? 'active-language' : ''}
+                key={language.code}
+                onClick={() => setActiveLanguage(language.code)}
+              >
+                {language.code.toUpperCase()}
+              </button>
+            ))}
             <a href="/admin" className="admin-link">ADMIN</a>
           </div>
         </div>
@@ -362,9 +359,9 @@ function App() {
             {getContent('quality_description', 'We work with suppliers that meet recognized quality standards and demanding requirements for professional industrial applications.')}
           </p>
           <div className="certifications">
-            {qualityCertifications.length === 0 ? <div className="certifications-placeholder">Quality certifications will appear here.</div> : qualityCertifications.map((cert, idx) => (
+            {qualityCertifications.map((cert, idx) => (
               <div key={idx} className="certification">
-                {cert.image && <img src={cert.image} alt="Certificação de qualidade" />}
+                <div>{cert.code}<br /><strong>{cert.num}</strong><small>{getCertificationText(cert, idx)}</small></div>
               </div>
             ))}
           </div>
@@ -380,7 +377,7 @@ function App() {
             <p>{getContent('contact_description', 'Looking for the right component or industrial solution? Get in touch with our team.')}</p>
             <div className="contact-details">
               <div className="contact-item">
-                <strong>{getContent('contact_address_label', 'Address')}</strong>
+                <strong>Address</strong>
                 {getContent('contact_address', 'Estrada Nacional 1, 137\n3850-052 Albergaria-a-Velha, Portugal').split('\n').map((line, idx) => (
                   <React.Fragment key={idx}>
                     {line}
@@ -389,11 +386,11 @@ function App() {
                 ))}
               </div>
               <div className="contact-item">
-                <strong>{getContent('contact_phone_label', 'Phone')}</strong>
+                <strong>Phone</strong>
                 {getContent('contact_phone', '+351 234 529 670')}
               </div>
               <div className="contact-item">
-                <strong>{getContent('contact_email_label', 'Email')}</strong>
+                <strong>Email</strong>
                 {getContent('contact_email', 'geral@unceta.pt')}
               </div>
             </div>
@@ -433,7 +430,7 @@ function App() {
               disabled={isSubmitting}
             ></textarea>
             <button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? getContent('form_sending', 'Sending...') : `${getContent('form_send_button', 'Send message')} →`}
+              {isSubmitting ? 'Sending...' : `${getContent('form_send_button', 'Send message')} →`}
             </button>
           </form>
         </div>

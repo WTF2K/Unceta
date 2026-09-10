@@ -1,5 +1,4 @@
 const { conteudos, linguas, traducoes } = require('../Config/database');
-const { Op } = require('sequelize');
 
 async function translateText(text, targetLanguage) {
   const response = await fetch(
@@ -15,8 +14,8 @@ async function translateText(text, targetLanguage) {
 }
 
 async function getTargetLanguages() {
-  const targetLanguages = await linguas.findAll({ where: { code: { [Op.ne]: 'en' } }, order: [['code', 'ASC']] });
-  if (targetLanguages.length === 0) throw new Error('At least one target language must be configured.');
+  const targetLanguages = await linguas.findAll({ where: { code: ['fr', 'de'] } });
+  if (targetLanguages.length !== 2) throw new Error('French and German must be configured first.');
   return targetLanguages;
 }
 
@@ -58,7 +57,7 @@ async function translateAllContent(req, res) {
       await translateRecord(content, targetLanguages);
     }
 
-    return res.status(200).json({ translatedContent: contentItems.length, languages: targetLanguages.map((language) => language.code) });
+    return res.status(200).json({ translatedContent: contentItems.length, languages: ['fr', 'de'] });
   } catch (error) {
     return res.status(502).json({ message: 'Automatic translation failed.', error: error.message });
   }

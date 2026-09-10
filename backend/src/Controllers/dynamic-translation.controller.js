@@ -1,5 +1,4 @@
 const { certificacao_traducoes, conteudos, linguas, noticia_traducoes, noticias } = require('../Config/database');
-const { Op } = require('sequelize');
 
 async function translateText(text, language) {
   const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${language}`);
@@ -10,8 +9,8 @@ async function translateText(text, language) {
 }
 
 async function getLanguages() {
-  const languages = await linguas.findAll({ where: { code: { [Op.ne]: 'en' } }, order: [['code', 'ASC']] });
-  if (languages.length === 0) throw new Error('At least one target language must be configured.');
+  const languages = await linguas.findAll({ where: { code: ['fr', 'de'] } });
+  if (languages.length !== 2) throw new Error('French and German must be configured first.');
   return languages;
 }
 

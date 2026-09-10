@@ -79,6 +79,24 @@ function CertificationEditorModal({ certification, isLoading, onCancel, onChange
   );
 }
 
+function ProductEditorModal({ isLoading, product, sectors, onCancel, onChange, onDelete, onSave, onUpload }) {
+  if (!product) return null;
+
+  return (
+    <div className="modal-overlay active" onClick={onCancel}>
+      <div className="modal-content" onClick={(event) => event.stopPropagation()}>
+        <h3>Editar Produto</h3>
+        <div className="form-group"><label>Nome</label><input type="text" value={product.nome} onChange={(event) => onChange({ nome: event.target.value })} /></div>
+        <div className="form-group"><label>Setor</label><select value={product.id_setor} onChange={(event) => onChange({ id_setor: event.target.value })}><option value="">Selecione um setor</option>{sectors.map((sector) => <option key={sector.id_setor} value={sector.id_setor}>{sector.nome}</option>)}</select></div>
+        <div className="form-group"><label>Descrição</label><textarea value={product.descricao || ''} onChange={(event) => onChange({ descricao: event.target.value })} rows="4" /></div>
+        <div className="form-group"><label>Imagem</label><input type="file" accept="image/*" onChange={onUpload} />{product.imagem && <img src={product.imagem} alt="Preview" className="image-preview" />}</div>
+        <div className="form-group checkbox"><label><input type="checkbox" checked={product.ativo} onChange={(event) => onChange({ ativo: event.target.checked })} />Ativo</label></div>
+        <div className="modal-actions"><button className="btn-save" onClick={onSave} disabled={isLoading}>{product.id_prod ? 'Guardar' : 'Criar Produto'}</button>{product.id_prod && <button className="btn-delete" onClick={() => onDelete(product.id_prod)} disabled={isLoading}>Eliminar Produto</button>}<button className="btn-cancel" onClick={onCancel}>Cancelar</button></div>
+      </div>
+    </div>
+  );
+}
+
 function TranslationReviewModal({ review, drafts, isLoading, onCancel, onChange, onSave }) {
   if (!review) return null;
   const getNewsKey = (newsId, languageId) => `news:${newsId}:${languageId}`;
@@ -840,155 +858,6 @@ function AdminPage() {
     </button>
   );
 
-  const EditModal = ({ isOpen, isContent = true }) => {
-    if (!isOpen) return null;
-
-    const handleSaveClick = async () => {
-      if (isContent) {
-        await saveContent(editingContent, editValue);
-      } else {
-        await saveProduct();
-      }
-    };
-
-    return (
-      <div className="modal-overlay active" onClick={() => {
-        if (!isContent) setProductEdit(null);
-        else setEditingContent(null);
-      }}>
-        <div className="modal-content" onClick={e => e.stopPropagation()}>
-          {isContent ? (
-            <>
-              <h3>Editar Conteúdo</h3>
-              <textarea
-                autoFocus
-                value={editValue}
-                onChange={(e) => setEditValue(e.target.value)}
-                rows="8"
-                style={{ width: '100%', padding: '12px 15px', border: '1px solid #dbe3ed', borderRadius: '6px', fontFamily: 'inherit', fontSize: '1rem' }}
-              />
-              <div className="modal-actions">
-                <button
-                  className="btn-save"
-                  onClick={handleSaveClick}
-                  disabled={isLoading}
-                >
-                  Guardar
-                </button>
-                <button
-                  className="btn-cancel"
-                  onClick={() => setEditingContent(null)}
-                >
-                  Cancelar
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
-              <h3>Editar Produto</h3>
-              {productEdit && (
-                <>
-                  <div className="form-group">
-                    <label>Nome</label>
-                    <input
-                      type="text"
-                      value={productEdit.nome}
-                      onChange={(e) => setProductEdit(prev => ({
-                        ...prev,
-                        nome: e.target.value
-                      }))}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Setor</label>
-                    <select
-                      value={productEdit.id_setor}
-                      onChange={(e) => setProductEdit(prev => ({
-                        ...prev,
-                        id_setor: e.target.value
-                      }))}
-                    >
-                      <option value="">Selecione um setor</option>
-                      {sectors.map(sector => (
-                        <option key={sector.id_setor} value={sector.id_setor}>
-                          {sector.nome}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label>Descrição</label>
-                    <textarea
-                      value={productEdit.descricao || ''}
-                      onChange={(e) => setProductEdit(prev => ({
-                        ...prev,
-                        descricao: e.target.value
-                      }))}
-                      rows="4"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Imagem</label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                    />
-                    {productEdit.imagem && (
-                      <img src={productEdit.imagem} alt="Preview" className="image-preview" />
-                    )}
-                  </div>
-
-                  <div className="form-group checkbox">
-                    <label>
-                      <input
-                        type="checkbox"
-                        checked={productEdit.ativo}
-                        onChange={(e) => setProductEdit(prev => ({
-                          ...prev,
-                          ativo: e.target.checked
-                        }))}
-                      />
-                      Ativo
-                    </label>
-                  </div>
-
-                  <div className="modal-actions">
-                    <button
-                      className="btn-save"
-                      onClick={handleSaveClick}
-                      disabled={isLoading}
-                    >
-                      {productEdit.id_prod ? 'Guardar' : 'Criar Produto'}
-                    </button>
-                    {productEdit.id_prod && (
-                      <button
-                        className="btn-delete"
-                        onClick={() => deleteProduct(productEdit.id_prod)}
-                        disabled={isLoading}
-                      >
-                        Eliminar Produto
-                      </button>
-                    )}
-                    <button
-                      className="btn-cancel"
-                      onClick={() => setProductEdit(null)}
-                    >
-                      Cancelar
-                    </button>
-                  </div>
-                </>
-              )}
-            </>
-          )}
-        </div>
-      </div>
-    );
-  };
-
   return (
     <>
       {/* HEADER */}
@@ -1454,7 +1323,16 @@ function AdminPage() {
           </div>
         </div>
       )}
-      <EditModal isOpen={productEdit !== null} isContent={false} />
+      <ProductEditorModal
+        isLoading={isLoading}
+        product={productEdit}
+        sectors={sectors}
+        onCancel={() => setProductEdit(null)}
+        onChange={(changes) => setProductEdit((product) => ({ ...product, ...changes }))}
+        onDelete={deleteProduct}
+        onSave={saveProduct}
+        onUpload={handleImageChange}
+      />
       {sectorEdit && (
         <div className="modal-overlay active" onClick={() => setSectorEdit(null)}>
           <div className="modal-content" onClick={(event) => event.stopPropagation()}>

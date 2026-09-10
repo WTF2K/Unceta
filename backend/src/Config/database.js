@@ -14,7 +14,25 @@ const models = initModels(sequelize);
 
 async function initializeDatabase() {
   await sequelize.authenticate();
-  await sequelize.sync({ alter: true });
+  const modelsInDependencyOrder = [
+    models.admins,
+    models.conteudos,
+    models.linguas,
+    models.messages,
+    models.noticias,
+    models.setores,
+    models.produtos,
+    models.traducoes,
+    models.produto_traducoes,
+    models.setor_traducoes,
+    models.noticia_traducoes,
+    models.certificacao_traducoes,
+    models.vistas_produto
+  ];
+
+  for (const model of modelsInDependencyOrder) {
+    await model.sync({ alter: true });
+  }
   console.log('Database synced successfully');
 }
 

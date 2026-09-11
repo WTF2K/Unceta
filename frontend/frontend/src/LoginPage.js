@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
 
 const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
+const ASSET_URL = API_URL.replace(/\/api\/?$/, '');
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ function LoginPage() {
   return (
     <main className="login-page">
       <form className="login-form" onSubmit={handleSubmit}>
-        <a className="login-logo" href="/" aria-label="Unceta home"><img src="http://localhost:5000/uploads/logo.png" alt="Unceta" /></a>
+        <a className="login-logo" href="/" aria-label="Unceta home"><img src={`${ASSET_URL}/uploads/logo.png`} alt="Unceta" /></a>
         <h1>Admin sign in</h1>
         <p>Use the administrator account configured on the server.</p>
         {error && <div className="login-error" role="alert">{error}</div>}

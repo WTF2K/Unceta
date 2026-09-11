@@ -3,6 +3,7 @@ import { notifyContentChanged, usePageContent } from './hooks/usePageContent';
 import './AdminPage.css';
 
 const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
+const ASSET_URL = API_URL.replace(/\/api\/?$/, '');
 const adminFetch = (url, options = {}) => window.fetch(url, { credentials: 'include', ...options });
 
 function ContentEditorModal({ isLoading, isOpen, value, onCancel, onChange, onSave }) {
@@ -866,7 +867,7 @@ function AdminPage() {
       {/* HEADER */}
       <header>
         <div className="wrap header-inner">
-          <a href="/" className="logo"><img src="http://localhost:5000/uploads/logo.png" alt="Unceta" /></a>
+          <a href="/" className="logo"><img src={`${ASSET_URL}/uploads/logo.png`} alt="Unceta" /></a>
           <nav>
             <a href="/">← Voltar ao site</a>
             <a href="#dashboard">Painel</a>
@@ -1262,7 +1263,7 @@ function AdminPage() {
       {/* FOOTER */}
       <footer>
         <div className="wrap footer-inner">
-          <img className="footer-logo" src="http://localhost:5000/uploads/logo.m.b.png" alt="Unceta" />
+          <img className="footer-logo" src={`${ASSET_URL}/uploads/logo.m.b.png`} alt="Unceta" />
           <div className="copyright">© 2026 Unceta. All rights reserved.</div>
         </div>
       </footer>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Admin.css';
 
 const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
+const ASSET_URL = API_URL.replace(/\/api\/?$/, '');
 
 function Admin() {
   const [activeTab, setActiveTab] = useState('content');
@@ -262,7 +263,7 @@ function Admin() {
       {/* HEADER */}
       <header>
         <div className="wrap header-inner">
-          <a href="/" className="logo"><img src="http://localhost:5000/uploads/logo.png" alt="Unceta" /></a>
+          <a href="/" className="logo"><img src={`${ASSET_URL}/uploads/logo.png`} alt="Unceta" /></a>
           <nav>
             <a href="/">← Voltar ao site</a>
           </nav>

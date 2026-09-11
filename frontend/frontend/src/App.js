@@ -4,7 +4,9 @@ import './App.css';
 
 const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
 const ASSET_URL = API_URL.replace(/\/api\/?$/, '');
-const getAssetUrl = (url) => url?.replace(/^https?:\/\/localhost(?::\d+)?\/uploads\//, `${ASSET_URL}/uploads/`) || '';
+const getAssetUrl = (url) => url
+  ?.replace(/^https?:\/\/localhost(?::\d+)?\/uploads\//, `${ASSET_URL}/uploads/`)
+  .replace(/^http:\/\/unceta\.onrender\.com\/uploads\//, 'https://unceta.onrender.com/uploads/') || '';
 
 function App() {
   const { activeLanguage, getContent, languages, setActiveLanguage } = usePageContent();

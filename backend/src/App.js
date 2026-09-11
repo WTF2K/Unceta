@@ -11,6 +11,8 @@ const db = require("./Config/database");
 const app = express();
 const uploadDirectory = process.env.UPLOAD_DIR || path.join(__dirname, '../uploads');
 
+app.set('trust proxy', 1);
+
 // CORS configuration
 app.use(cors({
   origin: ["http://localhost:3000", "http://localhost:3001"],
